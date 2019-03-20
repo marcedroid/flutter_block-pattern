@@ -1,21 +1,23 @@
 import 'dart:async';
 import 'validators.dart';
+import 'package:rxdart/rxdart.dart';
 
 class BlocLogin with Validators{
-  final _emailController = StreamController<String>.broadcast();
-  final _passwordController = StreamController<String>.broadcast();
+  final emailController = BehaviorSubject<String>();
+  final passwordController = BehaviorSubject<String>();
 
   //Add Data to Stream
-  Function(String) get addSinkEmail => _emailController.sink.add;
-  Function(String) get addSinkPassword => _passwordController.sink.add;
+  Function(String) get sinkEmail => emailController.sink.add;
+  Function(String) get sinkPassword => passwordController.sink.add;
 
   //Retrieve Data from Stream
-  Stream<String> get streamEmail => _emailController.stream.transform(validateEmail);
-  Stream<String> get streamPassword => _passwordController.stream.transform(validatePassword);
+  Stream<String> get streamEmail => emailController.stream.transform(validateEmail);
+  Stream<String> get streamPassword => passwordController.stream.transform(validatePassword);
+  Stream<bool> get streamSubmit => Observable.combineLatest2(streamEmail, streamPassword, (e,p) => true);
 
   void dispose(){
-    _emailController.close();
-    _passwordController.close();
+    emailController.close();
+    passwordController.close();
   }
 }
 
